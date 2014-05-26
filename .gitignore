@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+src/vendor/
+components/
+JSDesignPatterns.sublime-project
+JSDesignPatterns.sublime-workspace

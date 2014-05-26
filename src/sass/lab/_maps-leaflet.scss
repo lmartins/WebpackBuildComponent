@@ -1,0 +1,172 @@
+
+body, html{
+	height: 100%;
+}
+
+.Page.mapsPage{
+	width: 100%;
+	max-width: none;
+	padding: 0;
+}
+
+.map {
+  height: 100%;
+}
+
+.mapNotification{
+  width: 30px;
+  height: 30px;
+  right: -20px;
+  background: white;
+  border-radius: 100%;
+  box-shadow: hsla(192, 67%, 14%, 0.4) 0 1px 3px;
+}
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+
+
+
+$popup-bg: hsla(210, 29%, 24%, 0.90);
+
+//.map .leaflet-popup-content-wrapper {
+//  background: $popup-bg;
+//  color:#fff;
+//}
+//.map .leaflet-popup-content-wrapper a {
+//  color:#bdc3c7;
+//}
+//.map .leaflet-popup-tip-container {
+//  width: 40px;
+//  height: 25px;
+//  margin: 0 auto;
+//  position: relative;
+//}
+//.map .leaflet-popup-tip {
+//  width: 0;
+//  height: 0;
+//  margin: 0;
+//  border-left: 20px solid transparent;
+//  border-right: 20px solid transparent;
+//  border-top: 20px solid $popup-bg;
+//  box-shadow: none;
+//}
+
+.leaflet-popup{
+  header{
+    font-weight: bold;
+    border-bottom: 1px solid hsla(0, 0%, 92%, 1);
+    margin-bottom: 0.75em;
+  }
+  .notificationsList{
+    margin: 0;
+    padding: 0 0 0 1.5em;
+    max-height: 140px;
+    overflow: auto;
+  }
+  // TODO: Formato para lista vazia
+  p{
+    text-align: center;
+    font-size: 13px !important;
+    color: hsla(220, 8%, 65%, 1);
+    display: block;
+    margin: 0 !important;
+    padding: 0.5em 0;
+  }
+}
+
+
+// SYSTEM ICON
+// Markers para cada sistema no mapa
+.systemIcon{
+  //font-size: 1.2em;
+  line-height: 1.8;
+  min-width: 1.8em;
+  min-height: 1.8em;
+  border-radius: 100%;
+  background: hsl(204, 97%, 40%);
+  box-shadow:
+    hsla(0, 100%, 0%, 0.35) 0 1px 2px,
+    hsla(204, 97%, 40%, 0.3) 0 0 0 6px;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+
+  &:hover{
+    transform: scale(1.1);
+    background: hsl(204, 97%, 46%);
+  }
+
+  &.hasAlerts{
+    //background: hsla(0, 100%, 50%, 1);
+    box-shadow:
+      hsla(0, 100%, 0%, 0.35) 0 1px 2px,
+      hsla(42, 100%, 50%, 0.6) 0 0 0 6px;
+  }
+}
+
+
+.geoLocateBtn{
+  border: 1px solid hsla(0, 0%, 60%, 1);
+  border-radius: 3px;
+  position: absolute;
+  left: 10px;
+  top: 150px;
+  background: white;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+.geoLocateInfo{
+  font-size: 0.90em;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: hsla(221, 16%, 20%, 0.5);
+  color: white;
+  padding: 0.5em 1em;
+  opacity: 0;
+  animation: all 0.5s;
+  &.is-visible{
+    opacity: 1
+  }
+}
+
+
+// ONSCREEN SYSTEMS
+.onScreenSystems{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20%;
+  background: hsla(0, 0%, 100%, 0.75);
+  box-shadow: hsla(0, 0%, 0%, 0.25) 0 0 8px;
+  z-index: 100;
+  overflow-y: scroll;
+  color: red;
+  transform: translateX(95%);
+  transition: all 0.3s;
+  &:hover{
+    transform: translateX(0%);
+  }
+  a{
+    display: none;
+    padding: 0.75em 1.00em;
+    &:hover{
+      background: hsla(0, 0%, 10%, 0.05);
+    }
+    &.is-visible{
+      display: block;
+    }
+  }
+}

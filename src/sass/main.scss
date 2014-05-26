@@ -1,0 +1,20 @@
+body{
+  font-family: "Proxima Nova", Helvetica, Arial;
+  margin: 0;
+}
+p{
+  margin-top: 0;
+}
+h1, h2, h3{
+  margin-bottom: 0.5em;
+}
+*{
+  box-sizing: border-box;
+}
+
+.Page{
+  max-width: 95%;
+  margin: 0 auto;
+  background: hsl(0, 0%, 92%);
+  padding: 1.5em;
+}
