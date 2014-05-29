@@ -1,7 +1,7 @@
 "use strict";
 
-var _   = require('lodash'),
-    dom = require('dom');
+var _   = require('lodash');
+    // dom = require('dom');
 
 
 var add2 = function (x) {
@@ -19,6 +19,8 @@ var map = function (func, list) {
   }
   return output;
 };
+
+alert('WHEEE2!!!');
 
 
 var buildProcessor = function (func) {

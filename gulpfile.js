@@ -4,29 +4,25 @@ var gulp            = require('gulp'),
     gutil           = require('gulp-util'),
     sass            = require('gulp-sass'),
     prefix          = require('gulp-autoprefixer'),
-    coffee          = require('gulp-coffee'),
-    coffeelint      = require('gulp-coffeelint'),
     component       = require('gulp-component'),
     componentcoffee = require('component-coffee'),
     webpack         = require('webpack'),
     webpackConfig   = require("./webpack.config.js"),
+    webpackCompiler,
     plumber         = require('gulp-plumber'),
     changed         = require('gulp-changed'),
     uglify          = require('gulp-uglify'),
+    concat          = require('gulp-concat'),
     connect         = require('gulp-connect'),
     watch           = require('gulp-watch'),
-    notify          = require('gulp-notify');
+    notify          = require('gulp-notify'),
+    info            = require('./package.json');
 
-var options = {
-
-  COFFEE: {
-    src: ["src/coffee/**/*.coffee"],
-    build: "build/js/"
-  },
+var config = {
 
   JS: {
     src: ["src/JS/**/*.js"],
-    build: "build/js/*.js"
+    build: "build/js/"
   },
 
   COMPONENT: {
@@ -65,7 +61,7 @@ gulp.task('connect', function() {
 
 // SASS -----------------------------------------------------------------------
 gulp.task('sass', function() {
-  gulp.src( options.SASS.src )
+  gulp.src( config.SASS.src )
     .pipe(plumber())
     .pipe(sass({
       outputStyle: 'normal'
@@ -75,29 +71,30 @@ gulp.task('sass', function() {
       console.log("Error:", err);
     })
     .pipe(prefix( "last 1 version" ))
-    .pipe(gulp.dest( options.SASS.build ))
+    .pipe(gulp.dest( config.SASS.build ))
     .pipe(connect.reload());
 });
 
-
-// COFFEESCRIPT ---------------------------------------------------------------
-gulp.task('coffee', function () {
-  gulp.src( options.COFFEE.src )
-    .pipe(changed( options.COFFEE.build , { extension: '.js' }))
-    .pipe(coffeelint())
-    .pipe(coffeelint.reporter())
-    .pipe(coffee({
-      bare: true,
-      sourceMap: true
-      })
-    .on('error', gutil.log))
-    .pipe(gulp.dest( options.COFFEE.build ))
-    .pipe(connect.reload());
-});
 
 
 
 // WEBPACK ------------------------------------------------------------------
+
+gulp.task('webpack', function(callback) {
+  webpackCompiler.run(function(err, stats) {
+    if (err) {
+      throw new gutil.PluginError('webpack', err);
+    }
+
+    gutil.log('webpack', stats.toString({
+      colors: true,
+    }));
+
+    callback();
+
+  });
+});
+
 // modify some webpack config options
 var myDevConfig = Object.create(webpackConfig);
 myDevConfig.devtool = "sourcemap";
@@ -109,7 +106,9 @@ var devCompiler = webpack(myDevConfig);
 gulp.task("webpack:build-dev", function() {
 	// run webpack
 	devCompiler.run(function(err, stats) {
-		if(err) throw new gutil.PluginError("webpack:build-dev", err);
+		if(err) {
+      throw new gutil.PluginError("webpack:build-dev", err)
+    }
 		gutil.log("[webpack:build-dev]", stats.toString({
 			colors: true
 		}));
@@ -117,32 +116,32 @@ gulp.task("webpack:build-dev", function() {
 
 });
 
-gulp.task('js', function () {
-  gulp.src( options.JS.build )
-    .pipe(connect.reload());
-});
+// gulp.task('js', function () {
+//   gulp.src( config.JS.build )
+//     .pipe(connect.reload());
+// });
 
 
 // COMPONENT ------------------------------------------------------------------
 gulp.task('component-js', function () {
-  gulp.src( options.COMPONENT.manifest )
+  gulp.src( config.COMPONENT.manifest )
     .pipe(component.scripts({
       standalone: false,
       configure: function (builder) {
         builder.use( componentcoffee )
       }
     }))
-    .pipe(gulp.dest( options.COFFEE.build ))
+    .pipe(gulp.dest( config.COFFEE.build ))
 })
 
 gulp.task('component-css', function () {
-  gulp.src( options.COMPONENT.manifest )
+  gulp.src( config.COMPONENT.manifest )
     .pipe(component.styles({
       configure: function (builder) {
         builder.use( sass )
       }
     }))
-    .pipe(gulp.dest( options.SASS.build ))
+    .pipe(gulp.dest( config.SASS.build ))
 })
 
 
@@ -172,25 +171,91 @@ gulp.task('bower', [ 'bowerCopy', 'bowerMerge' ]);
 
 // HTML -----------------------------------------------------------------------
 gulp.task('html', function () {
-  gulp.src( options.HTML.src )
+  gulp.src( config.HTML.src )
     .pipe(connect.reload());
+});
+
+// ENVIRONMENT CONFIG ---------------------------------------------------------
+
+gulp.task('set-env-dev', function() {
+  config.webpack = {
+    cache: true,
+    debug: true,
+    devtool: 'source-map',
+    entry: {
+      main: './src/js/main.js',
+    },
+    output: {
+      path: config.JS.build ,
+      filename: '[name].bundle.js',
+      chunkFilename: '[id].chunk.js',
+      publicPath: '/static/js/',
+    },
+    plugins: [
+      new webpack.BannerPlugin(info.name + '\n' + info.version + ':' + Date.now() + ' [development build]'),
+      new webpack.DefinePlugin({
+        DEV: true,
+      }),
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery',
+      }),
+    ]
+  };
+  webpackCompiler = webpack(config.webpack);
+});
+
+gulp.task('set-env-prod', function() {
+  config.webpack = {
+    cache: true,
+    entry: {
+      main: './src/js/main.js',
+    },
+    output: {
+      path: config.JS.build ,
+      filename: '[name].bundle.js',
+      chunkFilename: '[id].chunk.js',
+      publicPath: '/static/js/',
+    },
+    plugins: [
+      new webpack.BannerPlugin(info.name + '\n' + info.version + ':' + Date.now() + ' [production build]'),
+      new webpack.DefinePlugin({
+        DEV: false,
+      }),
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery',
+      }),
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.AggressiveMergingPlugin(),
+      new webpack.optimize.UglifyJsPlugin()
+    ]
+  };
+  webpackCompiler = webpack(config.webpack);
 });
 
 
 // GLOBAL TASKS ---------------------------------------------------------------
 
-gulp.task('component', [ 'component-js', 'component-css' ]);
+// gulp.task('component', [ 'component-js', 'component-css' ]);
 
 gulp.task('watch', function () {
-  gulp.watch( options.HTML.src , ['html']);
-  gulp.watch( options.COFFEE.src , ['coffee']);
-  gulp.watch( options.JS.src , ["webpack:build-dev"]);
-  gulp.watch( options.JS.build , ["js"]);
-  gulp.watch( [options.COMPONENT.manifest, options.COMPONENT.src] , ['component-js', 'component-css']);
-  // gulp.watch(options.IMAGE_SOURCE, ['images']);
-  gulp.watch( options.HTML.src , ['html']  );
-  gulp.watch( options.SASS.src , ['sass']  );
-  // floserver()
+  gulp.watch( config.HTML.src , ['html']);
+  gulp.watch( config.JS.src , ["webpack"]);
+  // gulp.watch( config.JS.build , ["js"]);
+  gulp.watch( [config.COMPONENT.manifest, config.COMPONENT.src] , ['component-js', 'component-css']);
+  // gulp.watch(config.IMAGE_SOURCE, ['images']);
+  gulp.watch( config.SASS.src , ['sass']  );
 });
 
-gulp.task('default', ['connect', 'watch']);
+gulp.task('default', ['prod'] );
+gulp.task('dev', ['set-env-dev', 'connect', 'watch'] );
+gulp.task('prod', ['set-env-prod', 'connect', 'watch'] );
+
+
+
+// main tasks
+// gulp.task('development', ['set-env-dev', 'webpack', 'flo'], function() {
+//   gulp.watch( config.JS.src , ['webpack']);
+// });
+// gulp.task('production', ['set-env-prod'], function() {});
