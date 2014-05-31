@@ -1,8 +1,19 @@
 "use strict";
 
-var _   = require('lodash');
-    // dom = require('dom');
+require("script!./testeScriptLoader.js");
 
+require.ensure(['./moduleC'], function(require){
+  var c = require('./moduleC');
+  c();
+});
+
+var _   = require('lodash'),
+    modb = require('./moduleB.js');
+    //dom = require('dom');
+
+// modb();
+modb.addThing();
+modb.addAnotherThing();
 
 var add2 = function (x) {
   return x + 2;
@@ -20,7 +31,7 @@ var map = function (func, list) {
   return output;
 };
 
-alert('WHEEE2!!!');
+// alert('WHEEE2!!!');
 
 
 var buildProcessor = function (func) {

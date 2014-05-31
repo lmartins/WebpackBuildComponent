@@ -22,7 +22,8 @@ var config = {
 
   JS: {
     src: ["src/JS/**/*.js"],
-    build: "build/js/"
+    build: "build/js/",
+    buildfiles: "build/js/**/*.js"
   },
 
   COMPONENT: {
@@ -58,6 +59,7 @@ gulp.task('connect', function() {
     livereload: true
   });
 });
+
 
 // SASS -----------------------------------------------------------------------
 gulp.task('sass', function() {
@@ -116,10 +118,10 @@ gulp.task("webpack:build-dev", function() {
 
 });
 
-// gulp.task('js', function () {
-//   gulp.src( config.JS.build )
-//     .pipe(connect.reload());
-// });
+gulp.task('js', function () {
+  gulp.src( config.JS.buildfiles )
+    .pipe(connect.reload());
+});
 
 
 // COMPONENT ------------------------------------------------------------------
@@ -189,7 +191,7 @@ gulp.task('set-env-dev', function() {
       path: config.JS.build ,
       filename: '[name].bundle.js',
       chunkFilename: '[id].chunk.js',
-      publicPath: '/static/js/',
+      publicPath: '/build/js/',
     },
     plugins: [
       new webpack.BannerPlugin(info.name + '\n' + info.version + ':' + Date.now() + ' [development build]'),
@@ -242,7 +244,7 @@ gulp.task('set-env-prod', function() {
 gulp.task('watch', function () {
   gulp.watch( config.HTML.src , ['html']);
   gulp.watch( config.JS.src , ["webpack"]);
-  // gulp.watch( config.JS.build , ["js"]);
+  // gulp.watch( config.JS.buildfiles , ["js"]);
   gulp.watch( [config.COMPONENT.manifest, config.COMPONENT.src] , ['component-js', 'component-css']);
   // gulp.watch(config.IMAGE_SOURCE, ['images']);
   gulp.watch( config.SASS.src , ['sass']  );

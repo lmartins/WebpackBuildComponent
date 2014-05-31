@@ -1,0 +1,1 @@
+{"version":3,"sources":["./src/js/moduleC.js"],"names":[],"mappings":";;;;;;;;;AAAA;;AAEA;;AAEA;AACA;AACA","sourcesContent":["'use strict';\n\nrequire(\"script!./testeScriptLoader.js\");\n\nmodule.exports = function doSomething() {\n  console.log(\"Do something from module C\");\n}\n"],"sourceRoot":"webpack-module://"}
