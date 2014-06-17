@@ -1,12 +1,12 @@
 'use strict';
 
-require("script!./testeScriptLoader.js");
+// require("script!./testeScriptLoader.js");
 
 var addThing = function(){
   console.log("Add a thingie");
 };
 var addAnotherThing = function(){
-  console.log("Add another thingie");
+  console.log("Add another thingie.");
 };
 
 module.exports = {

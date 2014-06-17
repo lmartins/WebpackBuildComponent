@@ -5,6 +5,6 @@
   ],
   "local": [],
   "dependencies": {
-    "component/dom": "*"
+    "component/in-viewport": "*"
   }
 }

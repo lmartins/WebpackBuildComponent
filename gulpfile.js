@@ -8,6 +8,7 @@ var gulp            = require('gulp'),
     componentcoffee = require('component-coffee'),
     webpack         = require('webpack'),
     webpackConfig   = require("./webpack.config.js"),
+    ComponentPlugin = require("component-webpack-plugin"),
     webpackCompiler,
     plumber         = require('gulp-plumber'),
     changed         = require('gulp-changed'),
@@ -23,7 +24,7 @@ var config = {
   JS: {
     src: ["src/JS/**/*.js"],
     build: "build/js/",
-    buildfiles: "build/js/**/*.js"
+    buildfiles: "build/js/*.js"
   },
 
   COMPONENT: {
@@ -124,52 +125,6 @@ gulp.task('js', function () {
 });
 
 
-// COMPONENT ------------------------------------------------------------------
-gulp.task('component-js', function () {
-  gulp.src( config.COMPONENT.manifest )
-    .pipe(component.scripts({
-      standalone: false,
-      configure: function (builder) {
-        builder.use( componentcoffee )
-      }
-    }))
-    .pipe(gulp.dest( config.COFFEE.build ))
-})
-
-gulp.task('component-css', function () {
-  gulp.src( config.COMPONENT.manifest )
-    .pipe(component.styles({
-      configure: function (builder) {
-        builder.use( sass )
-      }
-    }))
-    .pipe(gulp.dest( config.SASS.build ))
-})
-
-
-// BOWER ----------------------------------------------------------------------
-gulp.task ('bowerCopy', function () {
-  gulp.src ([
-      'src/vendor/jquery/dist/jquery.js',
-      'src/vendor/backbone/backbone.js',
-      'src/vendor/underscore/underscore.js'
-      ])
-    .pipe (uglify())
-    .pipe (gulp.dest( "build/vendor/" ))
-});
-
-gulp.task ('bowerMerge', function () {
-  gulp.src ([
-      'src/vendor/jquery-easing/jquery.easing.js'
-    ])
-    .pipe (concat ("bundle.js"))
-    .pipe (uglify())
-    .pipe (gulp.dest ("build/vendor/"))
-});
-
-gulp.task('bower', [ 'bowerCopy', 'bowerMerge' ]);
-
-
 
 // HTML -----------------------------------------------------------------------
 gulp.task('html', function () {
@@ -183,6 +138,8 @@ gulp.task('set-env-dev', function() {
   config.webpack = {
     cache: true,
     debug: true,
+    progress: true,
+    colors: true,
     devtool: 'source-map',
     entry: {
       main: './src/js/main.js',
@@ -202,6 +159,7 @@ gulp.task('set-env-dev', function() {
         $: 'jquery',
         jQuery: 'jquery',
       }),
+      new ComponentPlugin()
     ]
   };
   webpackCompiler = webpack(config.webpack);
@@ -244,7 +202,7 @@ gulp.task('set-env-prod', function() {
 gulp.task('watch', function () {
   gulp.watch( config.HTML.src , ['html']);
   gulp.watch( config.JS.src , ["webpack"]);
-  // gulp.watch( config.JS.buildfiles , ["js"]);
+  gulp.watch( config.JS.buildfiles , ["js"]);
   gulp.watch( [config.COMPONENT.manifest, config.COMPONENT.src] , ['component-js', 'component-css']);
   // gulp.watch(config.IMAGE_SOURCE, ['images']);
   gulp.watch( config.SASS.src , ['sass']  );

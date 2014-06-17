@@ -1,15 +1,12 @@
 "use strict";
 
-require("script!./testeScriptLoader.js");
+// require("script!./testeScriptLoader.js");
 
-require.ensure(['./moduleC'], function(require){
-  var c = require('./moduleC');
-  c();
-});
+var _          = require('lodash'),
+    // dom     = require('dom'),
+    inViewport = require('in-viewport'),
+    modb       = require('./moduleB');
 
-var _   = require('lodash'),
-    modb = require('./moduleB.js');
-    //dom = require('dom');
 
 // modb();
 modb.addThing();
@@ -18,6 +15,7 @@ modb.addAnotherThing();
 var add2 = function (x) {
   return x + 2;
 };
+
 
 var double = function (x) {
   return x * 2;
@@ -55,11 +53,6 @@ console.log( processDouble( [12, 164, 320] ) );
 var double = buildMultiplier(2);
 var triple = buildMultiplier(3);
 
-
-// TODO: ver erro 404
-// require.ensure(["./moduleB"], function(require) {
-//     var b = require("./moduleB");
-// });
 
 var add1 = function (x) {
   return x + 1;
@@ -117,3 +110,17 @@ _.each(activeListItems, function(item) {
 });
 
 _.each(activeListItems, toggleActiveItem );
+
+
+require.ensure(['./moduleC'], function(require){
+  var c = require('./moduleC');
+  c();
+});
+
+
+var el = document.querySelector('.inView');
+if (inViewport(el)) {
+  console.log('inView');
+} else {
+  console.log('outView');
+}
